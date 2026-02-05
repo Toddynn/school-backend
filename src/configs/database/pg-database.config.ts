@@ -8,5 +8,5 @@ export default registerAs('pg_db', () => ({
 	password: env.DB_PASSWORD,
 	database: env.DB_DATABASE,
 	schema: env.DB_SCHEMA,
-	sync: env.DB_SYNC === 'true',
+	sync: env.DB_SYNC,
 }));
