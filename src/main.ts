@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { join } from 'node:path';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
@@ -27,4 +28,8 @@ async function bootstrap() {
 
 	await app.listen(env.APP_PORT ?? 3000, '0.0.0.0');
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+	console.error('Falha ao iniciar a aplicação:', error);
+	process.exit(1);
+});

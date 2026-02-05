@@ -21,11 +21,14 @@ services:
           volumes:
                - postgres_data:/var/lib/postgresql/data
 
-     adminer:
-          image: adminer:latest
-          restart: always
+     pgadmin:
+          image: dpage/pgadmin4
+          environment:
+               PGADMIN_DEFAULT_EMAIL: 'admin@teste.com'
+               PGADMIN_DEFAULT_PASSWORD: 'Admin123'
           ports:
-               - '8080:8080'
+               - '8085:80'
+          restart: always
           depends_on:
                pgsql:
                     condition: service_healthy

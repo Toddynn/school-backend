@@ -3,12 +3,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import pg_db_config from './configs/database/pg-database.config';
 import { PgTypeOrmConfigService } from './configs/database/pg-typeorm-config.service';
+import { CourseClassesModule } from './modules/classes/course-classes.module';
+import { CoursesModule } from './modules/courses/courses.module';
 import { ThemesModule } from './modules/themes/themes.module';
+import { UsersModule } from './modules/users/users.module';
 import { ReflectionGuardValidationPipe } from './shared/pipes/safe-type-declaration-pipe';
 
 @Module({
 	imports: [
-		ThemesModule,
 		ConfigModule.forRoot({
 			envFilePath: '.env',
 			isGlobal: true,
@@ -21,6 +23,10 @@ import { ReflectionGuardValidationPipe } from './shared/pipes/safe-type-declarat
 			},
 			inject: [ConfigService],
 		}),
+		CourseClassesModule,
+		CoursesModule,
+		ThemesModule,
+		UsersModule,
 	],
 	controllers: [],
 	providers: [ReflectionGuardValidationPipe],
