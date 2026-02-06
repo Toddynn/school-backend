@@ -1,5 +1,7 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { NotFoundCourseException } from '../../errors/not-found-course.error';
 
 export function DeleteCourseDocs() {
 	return applyDecorators(
@@ -16,15 +18,7 @@ export function DeleteCourseDocs() {
 			status: HttpStatus.OK,
 			description: 'Course deleted successfully.',
 		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'Course not found.',
-			schema: {
-				example: {
-					message: 'Curso não encontrado com os critérios: {"id":"..."}',
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(NotFoundCourseException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while deleting course.',

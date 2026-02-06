@@ -1,13 +1,15 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
 import { CreateUserDto } from '../../models/dto/input/create-user.dto';
 import { UserDto } from '../../models/dto/output/user.dto';
+import { UserAlreadyExistsException } from '../../errors/user-already-exists.error';
 
 export function CreateUserDocs() {
 	return applyDecorators(
 		ApiOperation({
 			summary: 'Create a new user',
-			description: 'Creates a new user with name, email and password. The email is validated for uniqueness.',
+			description: 'Creates a new user with name and email. The email is validated for uniqueness.',
 		}),
 		ApiBody({
 			type: CreateUserDto,
@@ -18,20 +20,7 @@ export function CreateUserDocs() {
 			description: 'User created successfully.',
 			type: UserDto,
 		}),
-		ApiResponse({
-			status: HttpStatus.CONFLICT,
-			description: 'Data conflict. The provided email is already in use.',
-			schema: {
-				examples: {
-					email_duplicado: {
-						summary: 'Email already registered',
-						value: {
-							message: 'E-mail usuario@email.com já em uso!',
-						},
-					},
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(UserAlreadyExistsException, ['{"email":"user@example.com"}'])),
 		ApiResponse({
 			status: HttpStatus.BAD_REQUEST,
 			description: 'Invalid data for user creation.',

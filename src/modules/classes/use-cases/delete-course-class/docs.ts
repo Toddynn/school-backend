@@ -1,5 +1,7 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { NotFoundClassException } from '../../errors/not-found-class.error';
 
 export function DeleteCourseClassDocs() {
 	return applyDecorators(
@@ -16,15 +18,7 @@ export function DeleteCourseClassDocs() {
 			status: HttpStatus.OK,
 			description: 'Class deleted successfully.',
 		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'Class not found.',
-			schema: {
-				example: {
-					message: 'Turma não encontrada com os critérios: {"id":"..."}',
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(NotFoundClassException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while deleting class.',

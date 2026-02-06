@@ -14,6 +14,7 @@ export class CreateCourseDto {
 	description: string;
 
 	@IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'A URL da imagem deve ser uma URL HTTPS válida' })
+	@IsNotEmpty({ message: 'A URL da imagem é obrigatória' })
 	@ApiProperty({ description: 'The image URL of the course (HTTPS only)', example: 'https://example.com/image.png' })
 	image_url: string;
 

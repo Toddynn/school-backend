@@ -1,13 +1,15 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
 import { UpdateUserDto } from '../../models/dto/input/update-user.dto';
 import { UserDto } from '../../models/dto/output/user.dto';
+import { NotFoundUserException } from '../../errors/not-found-user.error';
 
 export function UpdateUserDocs() {
 	return applyDecorators(
 		ApiOperation({
 			summary: 'Update user data',
-			description: 'Updates user data. Password cannot be changed through this endpoint. Use the password recovery flow to change the password.',
+			description: 'Updates user data.',
 		}),
 		ApiParam({
 			name: 'id',
@@ -27,15 +29,7 @@ export function UpdateUserDocs() {
 			status: HttpStatus.BAD_REQUEST,
 			description: 'Invalid data for user update.',
 		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'User not found.',
-			schema: {
-				example: {
-					message: 'User não encontrado com os critérios: {"id":"..."}',
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(NotFoundUserException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while updating user.',

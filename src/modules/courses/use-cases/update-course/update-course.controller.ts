@@ -1,6 +1,5 @@
 import { Body, Controller, Inject, Param, Patch } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Course } from '../../models/entities/course.entity';
 import { UpdateCourseDto } from '../../models/dto/input/update-course.dto';
 import { UpdateCourseDocs } from './docs';
 import { UpdateCourseUseCase } from './update-course.use-case';

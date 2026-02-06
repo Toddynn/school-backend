@@ -1,5 +1,7 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { NotFoundEnrollmentException } from '../../errors/not-found-enrollment.error';
 
 export function DeleteEnrollmentDocs() {
 	return applyDecorators(
@@ -16,15 +18,7 @@ export function DeleteEnrollmentDocs() {
 			status: HttpStatus.OK,
 			description: 'Enrollment deleted successfully.',
 		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'Enrollment not found.',
-			schema: {
-				example: {
-					message: 'Matrícula não encontrada com os critérios: {"id":"..."}',
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(NotFoundEnrollmentException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while deleting enrollment.',

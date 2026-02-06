@@ -1,7 +1,9 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
 import { UpdateCourseDto } from '../../models/dto/input/update-course.dto';
 import { CourseDto } from '../../models/dto/output/course.dto';
+import { NotFoundCourseException } from '../../errors/not-found-course.error';
 
 export function UpdateCourseDocs() {
 	return applyDecorators(
@@ -27,15 +29,7 @@ export function UpdateCourseDocs() {
 			status: HttpStatus.BAD_REQUEST,
 			description: 'Invalid data for course update.',
 		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'Course not found.',
-			schema: {
-				example: {
-					message: 'Curso não encontrado com os critérios: {"id":"..."}',
-				},
-			},
-		}),
+		ApiResponse(getExceptionResponseSchema(NotFoundCourseException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while updating course.',

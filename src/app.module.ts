@@ -28,7 +28,6 @@ import { ReflectionGuardValidationPipe } from './shared/pipes/safe-type-declarat
 		EnrollmentsModule,
 		UsersModule,
 	],
-	controllers: [],
 	providers: [ReflectionGuardValidationPipe],
 })
 export class AppModule {}

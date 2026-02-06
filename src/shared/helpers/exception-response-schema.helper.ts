@@ -1,36 +1,87 @@
 import type { HttpException } from '@nestjs/common';
 import type { ApiResponseOptions } from '@nestjs/swagger';
 
-/**
- * Gera automaticamente o schema de resposta para uma exceção personalizada no Swagger
- * @param ExceptionClass A classe da exceção personalizada
- * @param exampleFields Campos de exemplo para gerar a mensagem de erro (usado no construtor da exceção)
- * @param description Descrição opcional para a resposta (se não fornecida, usa o nome da exceção)
- * @returns Opções do ApiResponse configuradas automaticamente
- */
+type AnyConstructorArgs = unknown[];
+
+type ExceptionClass<T extends HttpException> = new (...args: AnyConstructorArgs) => T;
+
+interface ExceptionResponseOptions {
+	description?: string;
+}
+
+interface ExceptionConfig {
+	exception: ExceptionClass<HttpException>;
+	args: AnyConstructorArgs;
+	summary?: string;
+}
+
 export function getExceptionResponseSchema<T extends HttpException>(
-	ExceptionClass: new (...args: unknown[]) => T,
-	exampleFields: string = 'id=123',
-	description?: string,
+	Exception: ExceptionClass<T>,
+	constructorArgs: AnyConstructorArgs,
+	options?: ExceptionResponseOptions,
 ): ApiResponseOptions {
-	// Instancia a exceção com os campos de exemplo para extrair o formato da mensagem
-	const exceptionInstance = new ExceptionClass(exampleFields);
+	const exceptionInstance = new Exception(...constructorArgs);
 	const statusCode = exceptionInstance.getStatus();
 	const message = exceptionInstance.message;
 
-	// Extrai o nome do erro do response padrão do NestJS
 	const errorResponse = exceptionInstance.getResponse();
-	const errorName = typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse ? String(errorResponse.error) : 'Not Found';
+	const errorName =
+		typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse
+			? String(errorResponse.error)
+			: 'Error';
 
 	return {
 		status: statusCode,
-		description: description || exceptionInstance.constructor.name,
+		description: options?.description ?? exceptionInstance.name,
 		schema: {
 			example: {
 				statusCode,
 				message,
 				error: errorName,
 			},
+		},
+	};
+}
+
+export function getGroupedExceptionResponseSchema(
+	exceptions: ExceptionConfig[],
+	options?: ExceptionResponseOptions,
+): ApiResponseOptions {
+	if (exceptions.length === 0) {
+		throw new Error('At least one exception must be provided');
+	}
+
+	const firstInstance = new exceptions[0].exception(...exceptions[0].args);
+	const statusCode = firstInstance.getStatus();
+
+	const errorResponse = firstInstance.getResponse();
+	const errorName =
+		typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse
+			? String(errorResponse.error)
+			: 'Error';
+
+	const examples: Record<string, { summary: string; value: { statusCode: number; message: string; error: string } }> =
+		{};
+
+	for (const config of exceptions) {
+		const instance = new config.exception(...config.args);
+		const key = instance.name.replace(/Exception$/, '').replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+
+		examples[key] = {
+			summary: config.summary ?? instance.name,
+			value: {
+				statusCode: instance.getStatus(),
+				message: instance.message,
+				error: errorName,
+			},
+		};
+	}
+
+	return {
+		status: statusCode,
+		description: options?.description ?? errorName,
+		schema: {
+			examples,
 		},
 	};
 }

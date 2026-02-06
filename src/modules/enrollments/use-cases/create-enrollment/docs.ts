@@ -1,5 +1,14 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { NotFoundClassException } from '@/modules/classes/errors/not-found-class.error';
+import {
+	getExceptionResponseSchema,
+	getGroupedExceptionResponseSchema,
+} from '@/shared/helpers/exception-response-schema.helper';
+import { CourseClassNotAvailableException } from '../../errors/course-class-not-available.error';
+import { CourseClassOutOfRangeException } from '../../errors/course-class-out-of-range.error';
+import { EnrollmentAlreadyExistsException } from '../../errors/enrollment-already-exists.error';
+import { UserAlreadyEnrolledInCourseException } from '../../errors/user-already-enrolled-in-course.error';
 import { CreateEnrollmentDto } from '../../models/dto/input/create-enrollment.dto';
 import { EnrollmentDto } from '../../models/dto/output/enrollment.dto';
 
@@ -19,30 +28,34 @@ export function CreateEnrollmentDocs() {
 			description: 'Enrollment created successfully.',
 			type: EnrollmentDto,
 		}),
-		ApiResponse({
-			status: HttpStatus.BAD_REQUEST,
-			description: 'User is already enrolled in this class or in another class of the same course.',
-			schema: {
-				examples: {
-					already_enrolled_in_class: {
+		ApiResponse(
+			getGroupedExceptionResponseSchema(
+				[
+					{
+						exception: EnrollmentAlreadyExistsException,
+						args: ['{"user_id":"...","class_id":"..."}'],
 						summary: 'User already enrolled in this class',
-						value: {
-							message: 'Matrícula já existe com os critérios: {"user_id":"...","class_id":"..."}',
-						},
 					},
-					already_enrolled_in_course: {
+					{
+						exception: UserAlreadyEnrolledInCourseException,
+						args: ['user-id', 'course-id'],
 						summary: 'User already enrolled in another class of the same course',
-						value: {
-							message: 'Usuário {user_id} já está matriculado em uma classe do curso {course_id}',
-						},
 					},
-				},
-			},
-		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'Class not found.',
-		}),
+					{
+						exception: CourseClassNotAvailableException,
+						args: [],
+						summary: 'Class is not available for enrollment',
+					},
+					{
+						exception: CourseClassOutOfRangeException,
+						args: [],
+						summary: 'Class is out of enrollment period',
+					},
+				],
+				{ description: 'Conflict with current state of the resource' },
+			),
+		),
+		ApiResponse(getExceptionResponseSchema(NotFoundClassException, ['{"id":"..."}'])),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,
 			description: 'Unexpected error while creating enrollment.',

@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { CourseClass } from '@/modules/classes/models/entities/course-class.entity';
+import { CourseClassStatus } from '@/modules/classes/shared/enums/course-class-status.enum';
 import { GetExistingCourseClassUseCase } from '@/modules/classes/use-cases/get-existing-course-class/get-existing-class.use-case';
+import { CourseClassNotAvailableException } from '../../errors/course-class-not-available.error';
+import { CourseClassOutOfRangeException } from '../../errors/course-class-out-of-range.error';
 import { UserAlreadyEnrolledInCourseException } from '../../errors/user-already-enrolled-in-course.error';
 import type { CreateEnrollmentDto } from '../../models/dto/input/create-enrollment.dto';
 import type { Enrollment } from '../../models/entities/enrollment.entity';
@@ -20,10 +22,15 @@ export class CreateEnrollmentUseCase {
 	) {}
 
 	async execute(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
-		const courseClass = (await this.getExistingCourseClassUseCase.execute(
-			{ where: { id: createEnrollmentDto.class_id } },
-			{ throwIfNotFound: true },
-		)) as CourseClass;
+		const courseClass = await this.getExistingCourseClassUseCase.execute({ where: { id: createEnrollmentDto.class_id } }, { throwIfNotFound: true });
+
+		if (courseClass?.status !== CourseClassStatus.AVAILABLE) {
+			throw new CourseClassNotAvailableException();
+		}
+
+		if (courseClass?.start_date > new Date() || courseClass?.end_date < new Date()) {
+			throw new CourseClassOutOfRangeException();
+		}
 
 		await this.getExistingEnrollmentUseCase.execute(
 			{
