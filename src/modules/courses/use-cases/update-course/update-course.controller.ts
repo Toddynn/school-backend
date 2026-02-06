@@ -15,7 +15,7 @@ export class UpdateCourseController {
 
 	@Patch(':id')
 	@UpdateCourseDocs()
-	async execute(@Param('id') courseId: string, @Body() updateCourseDto: UpdateCourseDto): Promise<Course> {
+	async execute(@Param('id') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
 		return await this.updateCourseUseCase.execute(courseId, updateCourseDto);
 	}
 }

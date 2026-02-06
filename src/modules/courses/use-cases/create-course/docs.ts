@@ -8,7 +8,7 @@ export function CreateCourseDocs() {
 		ApiOperation({
 			summary: 'Create a new course',
 			description:
-				'Creates a new course with title, description, image_url (HTTPS only) and themes. Validates that all theme IDs exist.',
+				'Creates a new course with title, description, image_url (HTTPS only) and themes. Themes must be valid enum values.',
 		}),
 		ApiBody({
 			type: CreateCourseDto,
@@ -21,16 +21,7 @@ export function CreateCourseDocs() {
 		}),
 		ApiResponse({
 			status: HttpStatus.BAD_REQUEST,
-			description: 'Invalid data for course creation. image_url must be a valid HTTPS URL.',
-		}),
-		ApiResponse({
-			status: HttpStatus.NOT_FOUND,
-			description: 'One or more theme IDs not found.',
-			schema: {
-				example: {
-					message: 'Tema não encontrado com os critérios: {"id":["..."]}',
-				},
-			},
+			description: 'Invalid data for course creation. image_url must be a valid HTTPS URL. Themes must be valid enum values.',
 		}),
 		ApiResponse({
 			status: HttpStatus.INTERNAL_SERVER_ERROR,

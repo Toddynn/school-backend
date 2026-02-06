@@ -1,7 +1,7 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CourseClass } from '@/modules/classes/models/entities/course-class.entity';
-import { Theme } from '@/modules/themes/models/entities/theme.entity';
 import { TimestampedEntity } from '@/shared/entities/timestamped.entity';
+import { CourseTheme } from '../../shared/enums/course-theme.enum';
 
 @Entity('courses')
 export class Course extends TimestampedEntity {
@@ -14,16 +14,15 @@ export class Course extends TimestampedEntity {
 	@Column({ name: 'image_url' })
 	image_url: string;
 
-	@ManyToMany(
-		() => Theme,
-		(theme) => theme.courses,
-	)
-	@JoinTable({
-		name: 'course_themes',
-		joinColumn: { name: 'course_id', referencedColumnName: 'id' },
-		inverseJoinColumn: { name: 'theme_id', referencedColumnName: 'id' },
+	@Column({
+		name: 'themes',
+		type: 'enum',
+		enum: CourseTheme,
+		enumName: 'course_theme_enum',
+		array: true,
+		default: [],
 	})
-	themes: Theme[];
+	themes: CourseTheme[];
 
 	@OneToMany(
 		() => CourseClass,

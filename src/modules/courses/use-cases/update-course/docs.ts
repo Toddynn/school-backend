@@ -7,7 +7,7 @@ export function UpdateCourseDocs() {
 	return applyDecorators(
 		ApiOperation({
 			summary: 'Update course data',
-			description: 'Updates course data by id. image_url must be a valid HTTPS URL when provided.',
+			description: 'Updates course data by id. image_url must be a valid HTTPS URL when provided. Themes must be valid enum values.',
 		}),
 		ApiParam({
 			name: 'id',
@@ -29,17 +29,10 @@ export function UpdateCourseDocs() {
 		}),
 		ApiResponse({
 			status: HttpStatus.NOT_FOUND,
-			description: 'Course or one or more theme IDs not found.',
+			description: 'Course not found.',
 			schema: {
-				examples: {
-					course_not_found: {
-						summary: 'Course not found',
-						value: { message: 'Curso não encontrado com os critérios: {"id":"..."}' },
-					},
-					theme_not_found: {
-						summary: 'Theme not found',
-						value: { message: 'Tema não encontrado com os critérios: {"id":["..."]}' },
-					},
+				example: {
+					message: 'Curso não encontrado com os critérios: {"id":"..."}',
 				},
 			},
 		}),

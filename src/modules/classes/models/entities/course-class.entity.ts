@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Course } from '@/modules/courses/models/entities/course.entity';
+import { Enrollment } from '@/modules/enrollments/models/entities/enrollment.entity';
 import { TimestampedEntity } from '@/shared/entities/timestamped.entity';
 import { CourseClassStatus } from '../../shared/enums/course-class-status.enum';
 
@@ -45,10 +46,9 @@ export class CourseClass extends TimestampedEntity {
 	@JoinColumn({ name: 'course_id' })
 	course: Course;
 
-	// @OneToMany(
-	//  	() => ClassEnrollment,
-	//  	(classEnrollment) => classEnrollment.class,
-	//  	{ onDelete: 'CASCADE' },
-	//  )
-	//  class_enrollments: ClassEnrollment[];
+	@OneToMany(
+		() => Enrollment,
+		(enrollment) => enrollment.course_class,
+	)
+	enrollments: Enrollment[];
 }

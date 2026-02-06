@@ -10,7 +10,7 @@ export class CreateCourseClassDto {
 
 	@IsString()
 	@IsNotEmpty()
-	@MaxLength(255, { message: 'The title must be less than 255 characters' })
+	@MaxLength(255, { message: 'O título deve ter menos de 255 caracteres' })
 	@ApiProperty({ description: 'The title of the class' })
 	title: string;
 
@@ -20,7 +20,7 @@ export class CreateCourseClassDto {
 	description: string;
 
 	@IsInt()
-	@Min(1, { message: 'The number of available spots must be greater than 0' })
+	@Min(1, { message: 'O número de vagas disponíveis deve ser maior que 0' })
 	@ApiProperty({ description: 'The number of available spots' })
 	spots: number;
 
@@ -29,12 +29,12 @@ export class CreateCourseClassDto {
 	@ApiProperty({ description: 'The status of the class', enum: CourseClassStatus, default: CourseClassStatus.AVAILABLE })
 	status?: CourseClassStatus;
 
-	@IsDate()
+	@IsDate({ message: 'A data de início deve ser uma data válida' })
 	@Type(() => Date)
 	@ApiProperty({ description: 'The start date of the class', example: '2025-03-01T09:00:00.000Z' })
 	start_date: Date;
 
-	@IsDate()
+	@IsDate({ message: 'A data de término deve ser uma data válida' })
 	@Type(() => Date)
 	@ApiProperty({ description: 'The end date of the class', example: '2025-06-30T18:00:00.000Z' })
 	end_date: Date;

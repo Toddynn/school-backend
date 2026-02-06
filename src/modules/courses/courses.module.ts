@@ -11,10 +11,9 @@ import { DeleteCourseUseCase } from './use-cases/delete-course/delete-course.use
 import { GetExistingCourseUseCase } from './use-cases/get-existing-course/get-existing-course.use-case';
 import { UpdateCourseController } from './use-cases/update-course/update-course.controller';
 import { UpdateCourseUseCase } from './use-cases/update-course/update-course.use-case';
-import { ThemesModule } from '../themes/themes.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Course]), ThemesModule],
+	imports: [TypeOrmModule.forFeature([Course])],
 	controllers: [CreateCourseController, UpdateCourseController, DeleteCourseController],
 	providers: [
 		{
