@@ -20,8 +20,6 @@ const envSchema = object({
 	DB_DATABASE: string({ error: 'DB_DATABASE is required.' }),
 	DB_SCHEMA: string({ error: 'DB_SCHEMA is required.' }),
 	DB_SYNC: string({ error: 'DB_SYNC is required.' }),
-
-	MEDIA_FILES_DEST: string({ error: 'MEDIA_FILES_DEST is required.' }),
 });
 
 const rawEnv = {
@@ -42,8 +40,6 @@ const rawEnv = {
 	DB_DATABASE: process.env.DB_DATABASE,
 	DB_SCHEMA: process.env.DB_SCHEMA,
 	DB_SYNC: process.env.DB_SYNC,
-
-	MEDIA_FILES_DEST: process.env.MEDIA_FILES_DEST,
 } as const;
 
 export const env = envSchema.parse(rawEnv);

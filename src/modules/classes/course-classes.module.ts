@@ -10,12 +10,15 @@ import { CreateCourseClassUseCase } from './use-cases/create-course-class/create
 import { DeleteCourseClassController } from './use-cases/delete-course-class/delete-course-class.controller';
 import { DeleteCourseClassUseCase } from './use-cases/delete-course-class/delete-course-class.use-case';
 import { GetExistingCourseClassUseCase } from './use-cases/get-existing-course-class/get-existing-class.use-case';
+import { ListAllClassesController } from './use-cases/list-all-classes/list-all-classes.controller';
+import { ListAllClassesUseCase } from './use-cases/list-all-classes/list-all-classes.use-case';
 import { UpdateCourseClassController } from './use-cases/update-course-class/update-course-class.controller';
 import { UpdateCourseClassUseCase } from './use-cases/update-course-class/update-course-class.use-case';
+import { UpdateCourseClassSpotsUseCase } from './use-cases/update-course-class-spots/update-course-class-spots.use-case';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([CourseClass]), CoursesModule],
-	controllers: [CreateCourseClassController, UpdateCourseClassController, DeleteCourseClassController],
+	controllers: [CreateCourseClassController, UpdateCourseClassController, DeleteCourseClassController, ListAllClassesController],
 	providers: [
 		{
 			provide: COURSE_CLASSES_REPOSITORY_INTERFACE_KEY,
@@ -27,8 +30,16 @@ import { UpdateCourseClassUseCase } from './use-cases/update-course-class/update
 		CreateCourseClassUseCase,
 		GetExistingCourseClassUseCase,
 		UpdateCourseClassUseCase,
+		UpdateCourseClassSpotsUseCase,
+		DeleteCourseClassUseCase,
+		ListAllClassesUseCase,
+	],
+	exports: [
+		COURSE_CLASSES_REPOSITORY_INTERFACE_KEY,
+		GetExistingCourseClassUseCase,
+		UpdateCourseClassUseCase,
+		UpdateCourseClassSpotsUseCase,
 		DeleteCourseClassUseCase,
 	],
-	exports: [COURSE_CLASSES_REPOSITORY_INTERFACE_KEY, GetExistingCourseClassUseCase, UpdateCourseClassUseCase, DeleteCourseClassUseCase],
 })
 export class CourseClassesModule {}

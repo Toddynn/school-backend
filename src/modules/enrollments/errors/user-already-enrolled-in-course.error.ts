@@ -1,8 +1,8 @@
 import { ConflictException } from '@nestjs/common';
 
 export class UserAlreadyEnrolledInCourseException extends ConflictException {
-	constructor(userId: string, courseId: string) {
-		super(`Usuário ${userId} já está matriculado em uma classe do curso ${courseId}`);
+	constructor() {
+		super(`Usuário já está matriculado em uma classe deste curso`);
 		this.name = 'UserAlreadyEnrolledInCourseException';
 	}
 }

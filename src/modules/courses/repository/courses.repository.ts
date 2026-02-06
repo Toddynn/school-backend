@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { type DataSource, Repository } from 'typeorm';
-import { CourseClassStatus } from '@/modules/classes/shared/enums/course-class-status.enum';
-import type { PaginatedResponseDto, PaginationDto } from '@/shared/dto/pagination.dto';
+import type { PaginatedResponseDto } from '@/shared/dto/pagination.dto';
+import type { ListAllCoursesPaginationDto } from '../models/dto/input/list-all-courses-pagination.dto';
 import { Course } from '../models/entities/course.entity';
 import type { CoursesRepositoryInterface } from '../models/interfaces/courses-repository.interface';
 
@@ -11,11 +11,10 @@ export class CoursesRepository extends Repository<Course> implements CoursesRepo
 		super(Course, dataSource.createEntityManager());
 	}
 
-	async listAllCoursesWithAvailableClasses({ page = 1, limit = 10, search }: PaginationDto): Promise<PaginatedResponseDto<Course>> {
+	async listAllCoursesPaginated({ page = 1, limit = 10, search, themes, status }: ListAllCoursesPaginationDto): Promise<PaginatedResponseDto<Course>> {
 		const skip = (page - 1) * limit;
 
-		const queryBuilder = this.createQueryBuilder('course');
-		queryBuilder.where('course.status = :status', { status: CourseClassStatus.AVAILABLE });
+		const queryBuilder = this.createQueryBuilder('course').leftJoin('course.classes', 'classes');
 
 		if (search) {
 			queryBuilder.andWhere('(course.title ILIKE :search OR course.description ILIKE :search)', {
@@ -23,11 +22,17 @@ export class CoursesRepository extends Repository<Course> implements CoursesRepo
 			});
 		}
 
-		queryBuilder.leftJoinAndSelect('customer.organization', 'organization');
-		queryBuilder.leftJoinAndSelect('customer.user', 'user');
+		if (themes?.length) {
+			queryBuilder.andWhere('course.themes && :themes', { themes });
+		}
+
+		if (status?.length) {
+			queryBuilder.andWhere('classes.status IN (:...status)', { status });
+		}
+
 		queryBuilder.skip(skip);
 		queryBuilder.take(limit);
-		queryBuilder.orderBy('customer.created_at', 'DESC');
+		queryBuilder.orderBy('course.created_at', 'DESC');
 
 		const [data, total] = await queryBuilder.getManyAndCount();
 

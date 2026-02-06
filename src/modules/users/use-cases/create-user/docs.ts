@@ -1,9 +1,9 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { UserAlreadyExistsException } from '../../errors/user-already-exists.error';
 import { CreateUserDto } from '../../models/dto/input/create-user.dto';
 import { UserDto } from '../../models/dto/output/user.dto';
-import { UserAlreadyExistsException } from '../../errors/user-already-exists.error';
 
 export function CreateUserDocs() {
 	return applyDecorators(

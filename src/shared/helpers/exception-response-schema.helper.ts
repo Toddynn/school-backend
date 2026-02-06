@@ -25,10 +25,7 @@ export function getExceptionResponseSchema<T extends HttpException>(
 	const message = exceptionInstance.message;
 
 	const errorResponse = exceptionInstance.getResponse();
-	const errorName =
-		typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse
-			? String(errorResponse.error)
-			: 'Error';
+	const errorName = typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse ? String(errorResponse.error) : 'Error';
 
 	return {
 		status: statusCode,
@@ -43,10 +40,7 @@ export function getExceptionResponseSchema<T extends HttpException>(
 	};
 }
 
-export function getGroupedExceptionResponseSchema(
-	exceptions: ExceptionConfig[],
-	options?: ExceptionResponseOptions,
-): ApiResponseOptions {
+export function getGroupedExceptionResponseSchema(exceptions: ExceptionConfig[], options?: ExceptionResponseOptions): ApiResponseOptions {
 	if (exceptions.length === 0) {
 		throw new Error('At least one exception must be provided');
 	}
@@ -55,17 +49,17 @@ export function getGroupedExceptionResponseSchema(
 	const statusCode = firstInstance.getStatus();
 
 	const errorResponse = firstInstance.getResponse();
-	const errorName =
-		typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse
-			? String(errorResponse.error)
-			: 'Error';
+	const errorName = typeof errorResponse === 'object' && errorResponse !== null && 'error' in errorResponse ? String(errorResponse.error) : 'Error';
 
-	const examples: Record<string, { summary: string; value: { statusCode: number; message: string; error: string } }> =
-		{};
+	const examples: Record<string, { summary: string; value: { statusCode: number; message: string; error: string } }> = {};
 
 	for (const config of exceptions) {
 		const instance = new config.exception(...config.args);
-		const key = instance.name.replace(/Exception$/, '').replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+		const key = instance.name
+			.replace(/Exception$/, '')
+			.replace(/([A-Z])/g, '_$1')
+			.toLowerCase()
+			.slice(1);
 
 		examples[key] = {
 			summary: config.summary ?? instance.name,

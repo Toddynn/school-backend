@@ -7,8 +7,7 @@ export function CreateCourseDocs() {
 	return applyDecorators(
 		ApiOperation({
 			summary: 'Create a new course',
-			description:
-				'Creates a new course with title, description, image_url (HTTPS only) and themes. Themes must be valid enum values.',
+			description: 'Creates a new course with title, description, image_url (HTTPS only) and themes. Themes must be valid enum values.',
 		}),
 		ApiBody({
 			type: CreateCourseDto,

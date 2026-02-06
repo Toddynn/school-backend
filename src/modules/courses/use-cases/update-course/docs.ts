@@ -1,9 +1,9 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { NotFoundCourseException } from '../../errors/not-found-course.error';
 import { UpdateCourseDto } from '../../models/dto/input/update-course.dto';
 import { CourseDto } from '../../models/dto/output/course.dto';
-import { NotFoundCourseException } from '../../errors/not-found-course.error';
 
 export function UpdateCourseDocs() {
 	return applyDecorators(

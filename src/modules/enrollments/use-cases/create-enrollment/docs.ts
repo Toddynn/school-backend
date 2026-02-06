@@ -1,10 +1,7 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { NotFoundClassException } from '@/modules/classes/errors/not-found-class.error';
-import {
-	getExceptionResponseSchema,
-	getGroupedExceptionResponseSchema,
-} from '@/shared/helpers/exception-response-schema.helper';
+import { getExceptionResponseSchema, getGroupedExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
 import { CourseClassNotAvailableException } from '../../errors/course-class-not-available.error';
 import { CourseClassOutOfRangeException } from '../../errors/course-class-out-of-range.error';
 import { EnrollmentAlreadyExistsException } from '../../errors/enrollment-already-exists.error';
@@ -16,8 +13,7 @@ export function CreateEnrollmentDocs() {
 	return applyDecorators(
 		ApiOperation({
 			summary: 'Create a new enrollment',
-			description:
-				'Enrolls a user in a class. A user cannot be enrolled in the same class twice or in more than one class of the same course.',
+			description: 'Enrolls a user in a class. A user cannot be enrolled in the same class twice or in more than one class of the same course.',
 		}),
 		ApiBody({
 			type: CreateEnrollmentDto,

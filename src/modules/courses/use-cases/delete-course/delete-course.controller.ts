@@ -1,8 +1,8 @@
 import { Controller, Delete, Inject, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
-import { DeleteCourseDocs } from './docs';
 import { DeleteCourseUseCase } from './delete-course.use-case';
+import { DeleteCourseDocs } from './docs';
 
 @ApiTags('Courses')
 @Controller('courses')

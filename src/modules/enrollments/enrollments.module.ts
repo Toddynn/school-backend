@@ -10,10 +10,12 @@ import { CreateEnrollmentUseCase } from './use-cases/create-enrollment/create-en
 import { DeleteEnrollmentController } from './use-cases/delete-enrollment/delete-enrollment.controller';
 import { DeleteEnrollmentUseCase } from './use-cases/delete-enrollment/delete-enrollment.use-case';
 import { GetExistingEnrollmentUseCase } from './use-cases/get-existing-enrollment/get-existing-enrollment.use-case';
+import { ListAllEnrollmentsController } from './use-cases/list-all-enrollments/list-all-enrollments.controller';
+import { ListAllEnrollmentsUseCase } from './use-cases/list-all-enrollments/list-all-enrollments.use-case';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([Enrollment]), CourseClassesModule],
-	controllers: [CreateEnrollmentController, DeleteEnrollmentController],
+	controllers: [CreateEnrollmentController, DeleteEnrollmentController, ListAllEnrollmentsController],
 	providers: [
 		{
 			provide: ENROLLMENT_REPOSITORY_INTERFACE_KEY,
@@ -25,6 +27,7 @@ import { GetExistingEnrollmentUseCase } from './use-cases/get-existing-enrollmen
 		CreateEnrollmentUseCase,
 		GetExistingEnrollmentUseCase,
 		DeleteEnrollmentUseCase,
+		ListAllEnrollmentsUseCase,
 	],
 	exports: [ENROLLMENT_REPOSITORY_INTERFACE_KEY, GetExistingEnrollmentUseCase],
 })

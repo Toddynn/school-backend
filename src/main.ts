@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { join } from 'node:path';
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
@@ -19,12 +18,9 @@ async function bootstrap() {
 	};
 	app.enableCors(corsOptions);
 
-	app.useStaticAssets(join(__dirname, '..', env.MEDIA_FILES_DEST), {
-		index: false,
-		prefix: `/${env.MEDIA_FILES_DEST}`,
-	});
-
-	setupDocumentationConfig(app);
+	if (process.env.NODE_ENV !== 'production') {
+		setupDocumentationConfig(app);
+	}
 
 	await app.listen(env.APP_PORT ?? 3000, '0.0.0.0');
 }

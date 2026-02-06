@@ -1,9 +1,9 @@
 import { HttpStatus, applyDecorators } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { getExceptionResponseSchema } from '@/shared/helpers/exception-response-schema.helper';
+import { NotFoundUserException } from '../../errors/not-found-user.error';
 import { UpdateUserDto } from '../../models/dto/input/update-user.dto';
 import { UserDto } from '../../models/dto/output/user.dto';
-import { NotFoundUserException } from '../../errors/not-found-user.error';
 
 export function UpdateUserDocs() {
 	return applyDecorators(

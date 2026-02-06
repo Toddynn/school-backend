@@ -13,6 +13,7 @@ export function setupDocumentationConfig(app: INestApplication) {
 			customfavIcon: favIcon,
 			persistAuthorization: true,
 		},
+		customfavIcon: favIcon,
 		customSiteTitle: 'API / School',
 	});
 

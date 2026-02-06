@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CourseClassStatus } from '@/modules/classes/shared/enums/course-class-status.enum';
 import { GetExistingCourseClassUseCase } from '@/modules/classes/use-cases/get-existing-course-class/get-existing-class.use-case';
+import { UpdateCourseClassSpotsUseCase } from '@/modules/classes/use-cases/update-course-class-spots/update-course-class-spots.use-case';
+import { CourseClassFullException } from '../../errors/course-class-full.error';
 import { CourseClassNotAvailableException } from '../../errors/course-class-not-available.error';
 import { CourseClassOutOfRangeException } from '../../errors/course-class-out-of-range.error';
 import { UserAlreadyEnrolledInCourseException } from '../../errors/user-already-enrolled-in-course.error';
@@ -19,6 +21,8 @@ export class CreateEnrollmentUseCase {
 		private readonly getExistingEnrollmentUseCase: GetExistingEnrollmentUseCase,
 		@Inject(GetExistingCourseClassUseCase)
 		private readonly getExistingCourseClassUseCase: GetExistingCourseClassUseCase,
+		@Inject(UpdateCourseClassSpotsUseCase)
+		private readonly updateCourseClassSpotsUseCase: UpdateCourseClassSpotsUseCase,
 	) {}
 
 	async execute(createEnrollmentDto: CreateEnrollmentDto): Promise<Enrollment> {
@@ -30,6 +34,10 @@ export class CreateEnrollmentUseCase {
 
 		if (courseClass?.start_date > new Date() || courseClass?.end_date < new Date()) {
 			throw new CourseClassOutOfRangeException();
+		}
+
+		if (courseClass?.spots <= 0) {
+			throw new CourseClassFullException();
 		}
 
 		await this.getExistingEnrollmentUseCase.execute(
@@ -45,8 +53,11 @@ export class CreateEnrollmentUseCase {
 		await this.validateUserNotEnrolledInCourse(createEnrollmentDto.user_id, courseClass.course_id);
 
 		const enrollment = this.enrollmentsRepository.create(createEnrollmentDto);
+		const savedEnrollment = await this.enrollmentsRepository.save(enrollment);
 
-		return await this.enrollmentsRepository.save(enrollment);
+		await this.updateCourseClassSpotsUseCase.execute(createEnrollmentDto.class_id, 'decrement');
+
+		return savedEnrollment;
 	}
 
 	private async validateUserNotEnrolledInCourse(userId: string, courseId: string): Promise<void> {
@@ -63,7 +74,7 @@ export class CreateEnrollmentUseCase {
 		);
 
 		if (existingEnrollment) {
-			throw new UserAlreadyEnrolledInCourseException(userId, courseId);
+			throw new UserAlreadyEnrolledInCourseException();
 		}
 	}
 }
