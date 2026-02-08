@@ -2,7 +2,7 @@ import { Test, type TestingModule } from '@nestjs/testing';
 import { CourseClassStatus } from '@/modules/classes/shared/enums/course-class-status.enum';
 import type { PaginatedResponseDto } from '@/shared/dto/pagination.dto';
 import type { ListAllCoursesPaginationDto } from '../../models/dto/input/list-all-courses-pagination.dto';
-import type { Course } from '../../models/entities/course.entity';
+import type { CourseWithClassesStatusCounts } from '../../models/dto/output/course-with-classes-status-counts.dto';
 import type { CoursesRepositoryInterface } from '../../models/interfaces/courses-repository.interface';
 import { COURSE_REPOSITORY_INTERFACE_KEY } from '../../shared/constants/repository-interface-key';
 import { CourseTheme } from '../../shared/enums/course-theme.enum';
@@ -12,18 +12,18 @@ describe('ListAllCoursesUseCase', () => {
 	let useCase: ListAllCoursesUseCase;
 	let mockCoursesRepository: jest.Mocked<CoursesRepositoryInterface>;
 
-	const mockCourse: Course = {
+	const mockCourse: CourseWithClassesStatusCounts = {
 		id: '0194e7c5-8b7e-7000-8000-000000000001',
 		title: 'Curso de TypeScript',
 		description: 'Aprenda TypeScript do zero ao avançado',
 		image_url: 'https://example.com/typescript.png',
 		themes: [CourseTheme.TECHNOLOGY, CourseTheme.INNOVATION],
-		classes: [],
 		created_at: new Date('2024-01-01'),
 		updated_at: new Date('2024-01-01'),
-	} as unknown as Course;
+		classes_count: { available_classes_count: 3, closed_classes_count: 1 },
+	} as unknown as CourseWithClassesStatusCounts;
 
-	const mockCourses: Course[] = [
+	const mockCourses: CourseWithClassesStatusCounts[] = [
 		mockCourse,
 		{
 			id: '0194e7c5-8b7e-7000-8000-000000000002',
@@ -31,13 +31,13 @@ describe('ListAllCoursesUseCase', () => {
 			description: 'Domine o marketing digital',
 			image_url: 'https://example.com/marketing.png',
 			themes: [CourseTheme.MARKETING, CourseTheme.ENTREPRENEURSHIP],
-			classes: [],
 			created_at: new Date('2024-01-02'),
 			updated_at: new Date('2024-01-02'),
-		} as unknown as Course,
+			classes_count: { available_classes_count: 2, closed_classes_count: 0 },
+		} as unknown as CourseWithClassesStatusCounts,
 	];
 
-	const mockPaginatedResponse: PaginatedResponseDto<Course> = {
+	const mockPaginatedResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 		data: mockCourses,
 		page: 1,
 		limit: 10,
@@ -90,7 +90,7 @@ describe('ListAllCoursesUseCase', () => {
 
 			it('should return paginated courses with custom page and limit', async () => {
 				const paginationDto: ListAllCoursesPaginationDto = { page: 2, limit: 5 };
-				const customResponse: PaginatedResponseDto<Course> = {
+				const customResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					...mockPaginatedResponse,
 					page: 2,
 					limit: 5,
@@ -113,11 +113,21 @@ describe('ListAllCoursesUseCase', () => {
 				expect(result).toHaveProperty('total');
 				expect(result).toHaveProperty('total_pages');
 			});
+
+			it('should include class status counts in response data', async () => {
+				const result = await useCase.execute({});
+
+				expect(result.data[0]).toHaveProperty('classes_count');
+				expect(result.data[0].classes_count).toEqual({
+					available_classes_count: 3,
+					closed_classes_count: 1,
+				});
+			});
 		});
 
 		describe('filtering by search (title/description)', () => {
 			it('should filter courses by title through search parameter', async () => {
-				const filteredResponse: PaginatedResponseDto<Course> = {
+				const filteredResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [mockCourse],
 					page: 1,
 					limit: 10,
@@ -135,7 +145,7 @@ describe('ListAllCoursesUseCase', () => {
 			});
 
 			it('should filter courses by description through search parameter', async () => {
-				const filteredResponse: PaginatedResponseDto<Course> = {
+				const filteredResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [mockCourse],
 					page: 1,
 					limit: 10,
@@ -150,7 +160,7 @@ describe('ListAllCoursesUseCase', () => {
 			});
 
 			it('should return empty results for non-matching search', async () => {
-				const emptyResponse: PaginatedResponseDto<Course> = {
+				const emptyResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [],
 					page: 1,
 					limit: 10,
@@ -167,7 +177,7 @@ describe('ListAllCoursesUseCase', () => {
 
 		describe('filtering by themes', () => {
 			it('should filter courses by single theme', async () => {
-				const filteredResponse: PaginatedResponseDto<Course> = {
+				const filteredResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [mockCourse],
 					page: 1,
 					limit: 10,
@@ -232,7 +242,7 @@ describe('ListAllCoursesUseCase', () => {
 			});
 
 			it('should return empty results for theme with no courses', async () => {
-				const emptyResponse: PaginatedResponseDto<Course> = {
+				const emptyResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [],
 					page: 1,
 					limit: 10,
@@ -315,7 +325,7 @@ describe('ListAllCoursesUseCase', () => {
 
 		describe('empty results', () => {
 			it('should return empty data array when no courses found', async () => {
-				const emptyResponse: PaginatedResponseDto<Course> = {
+				const emptyResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [],
 					page: 1,
 					limit: 10,
@@ -334,7 +344,7 @@ describe('ListAllCoursesUseCase', () => {
 
 		describe('pagination edge cases', () => {
 			it('should handle large page numbers', async () => {
-				const emptyResponse: PaginatedResponseDto<Course> = {
+				const emptyResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [],
 					page: 999,
 					limit: 10,
@@ -350,7 +360,7 @@ describe('ListAllCoursesUseCase', () => {
 			});
 
 			it('should handle limit of 1', async () => {
-				const singleItemResponse: PaginatedResponseDto<Course> = {
+				const singleItemResponse: PaginatedResponseDto<CourseWithClassesStatusCounts> = {
 					data: [mockCourse],
 					page: 1,
 					limit: 1,

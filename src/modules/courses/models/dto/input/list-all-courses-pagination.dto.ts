@@ -22,7 +22,7 @@ export class ListAllCoursesPaginationDto extends PaginationDto {
 	themes?: CourseTheme[];
 
 	@ApiPropertyOptional({
-		description: 'Filter by course status',
+		description: 'Filter by course class status',
 		enum: CourseClassStatus,
 		isArray: true,
 	})
@@ -34,5 +34,5 @@ export class ListAllCoursesPaginationDto extends PaginationDto {
 	})
 	@IsArray()
 	@IsEnum(CourseClassStatus, { each: true, message: 'Cada status deve ser um status válido' })
-	status?: CourseClassStatus[];
+	courseClassStatus?: CourseClassStatus[];
 }

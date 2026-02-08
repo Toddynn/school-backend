@@ -35,14 +35,21 @@ describe('CoursesRepository', () => {
 		} as unknown as Course,
 	];
 
+	const mockRaw = [
+		{ available_classes_count: '3', closed_classes_count: '1' },
+		{ available_classes_count: '2', closed_classes_count: '0' },
+	];
+
 	beforeEach(() => {
 		mockQueryBuilder = {
-			leftJoin: jest.fn().mockReturnThis(),
+			addSelect: jest.fn().mockReturnThis(),
+			setParameters: jest.fn().mockReturnThis(),
 			andWhere: jest.fn().mockReturnThis(),
+			orderBy: jest.fn().mockReturnThis(),
 			skip: jest.fn().mockReturnThis(),
 			take: jest.fn().mockReturnThis(),
-			orderBy: jest.fn().mockReturnThis(),
-			getManyAndCount: jest.fn().mockResolvedValue([mockCourses, mockCourses.length]),
+			getCount: jest.fn().mockResolvedValue(mockCourses.length),
+			getRawAndEntities: jest.fn().mockResolvedValue({ entities: mockCourses, raw: mockRaw }),
 		} as unknown as jest.Mocked<SelectQueryBuilder<Course>>;
 
 		mockEntityManager = {} as jest.Mocked<EntityManager>;
@@ -61,16 +68,25 @@ describe('CoursesRepository', () => {
 	});
 
 	describe('listAllCoursesPaginated', () => {
-		it('should return paginated courses with default pagination values', async () => {
+		it('should return paginated courses with class status counts', async () => {
 			const result = await repository.listAllCoursesPaginated({});
 
 			expect(repository.createQueryBuilder).toHaveBeenCalledWith('course');
-			expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith('course.classes', 'classes');
+			expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(2);
+			expect(mockQueryBuilder.setParameters).toHaveBeenCalledWith({
+				availableStatus: CourseClassStatus.AVAILABLE,
+				closedStatus: CourseClassStatus.CLOSED,
+			});
 			expect(mockQueryBuilder.skip).toHaveBeenCalledWith(0);
 			expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
 			expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('course.created_at', 'DESC');
+			expect(mockQueryBuilder.getCount).toHaveBeenCalled();
+			expect(mockQueryBuilder.getRawAndEntities).toHaveBeenCalled();
 			expect(result).toEqual({
-				data: mockCourses,
+				data: [
+					{ ...mockCourses[0], classes_count: { available_classes_count: 3, closed_classes_count: 1 } },
+					{ ...mockCourses[1], classes_count: { available_classes_count: 2, closed_classes_count: 0 } },
+				],
 				page: 1,
 				limit: 10,
 				total: 2,
@@ -129,44 +145,53 @@ describe('CoursesRepository', () => {
 			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith('course.themes && :themes', expect.anything());
 		});
 
-		it('should filter by status when status array is provided', async () => {
-			const status = [CourseClassStatus.AVAILABLE];
+		it('should filter by status using EXISTS subquery', async () => {
+			const courseClassStatus = [CourseClassStatus.AVAILABLE];
 
-			await repository.listAllCoursesPaginated({ status });
+			await repository.listAllCoursesPaginated({ courseClassStatus });
 
-			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('classes.status IN (:...status)', { status });
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+				'EXISTS (SELECT 1 FROM classes c2 WHERE c2.course_id = course.id AND c2.status IN (:...courseClassStatus))',
+				{ courseClassStatus },
+			);
 		});
 
 		it('should filter by multiple statuses', async () => {
-			const status = [CourseClassStatus.AVAILABLE, CourseClassStatus.CLOSED];
+			const courseClassStatus = [CourseClassStatus.AVAILABLE, CourseClassStatus.CLOSED];
 
-			await repository.listAllCoursesPaginated({ status });
+			await repository.listAllCoursesPaginated({ courseClassStatus });
 
-			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('classes.status IN (:...status)', { status });
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+				'EXISTS (SELECT 1 FROM classes c2 WHERE c2.course_id = course.id AND c2.status IN (:...courseClassStatus))',
+				{ courseClassStatus },
+			);
 		});
 
 		it('should not apply status filter when status array is empty', async () => {
-			await repository.listAllCoursesPaginated({ status: [] });
+			await repository.listAllCoursesPaginated({ courseClassStatus: [] });
 
-			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith('classes.status IN (:...status)', expect.anything());
+			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith(expect.stringContaining('EXISTS'), expect.anything());
 		});
 
 		it('should apply all filters together', async () => {
 			const search = 'curso';
 			const themes = [CourseTheme.TECHNOLOGY];
-			const status = [CourseClassStatus.AVAILABLE];
+			const courseClassStatus = [CourseClassStatus.AVAILABLE];
 
-			await repository.listAllCoursesPaginated({ search, themes, status });
+			await repository.listAllCoursesPaginated({ search, themes, courseClassStatus });
 
 			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('(course.title ILIKE :search OR course.description ILIKE :search)', {
 				search: '%curso%',
 			});
 			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('course.themes && :themes', { themes });
-			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('classes.status IN (:...status)', { status });
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+				'EXISTS (SELECT 1 FROM classes c2 WHERE c2.course_id = course.id AND c2.status IN (:...courseClassStatus))',
+				{ courseClassStatus },
+			);
 		});
 
 		it('should calculate total pages correctly', async () => {
-			mockQueryBuilder.getManyAndCount.mockResolvedValueOnce([mockCourses, 25]);
+			mockQueryBuilder.getCount.mockResolvedValueOnce(25);
 
 			const result = await repository.listAllCoursesPaginated({ page: 1, limit: 10 });
 
@@ -175,7 +200,8 @@ describe('CoursesRepository', () => {
 		});
 
 		it('should return empty data array when no courses found', async () => {
-			mockQueryBuilder.getManyAndCount.mockResolvedValueOnce([[], 0]);
+			mockQueryBuilder.getCount.mockResolvedValueOnce(0);
+			mockQueryBuilder.getRawAndEntities.mockResolvedValueOnce({ entities: [], raw: [] });
 
 			const result = await repository.listAllCoursesPaginated({});
 
@@ -196,16 +222,36 @@ describe('CoursesRepository', () => {
 			expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('course.created_at', 'DESC');
 		});
 
-		it('should join with classes relation', async () => {
-			await repository.listAllCoursesPaginated({});
-
-			expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith('course.classes', 'classes');
-		});
-
 		it('should handle search with special characters', async () => {
 			await repository.listAllCoursesPaginated({ search: 'c#' });
 
 			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('(course.title ILIKE :search OR course.description ILIKE :search)', { search: '%c#%' });
+		});
+
+		it('should map raw count values to numbers', async () => {
+			mockQueryBuilder.getRawAndEntities.mockResolvedValueOnce({
+				entities: [mockCourse],
+				raw: [{ available_classes_count: '5', closed_classes_count: '10' }],
+			});
+			mockQueryBuilder.getCount.mockResolvedValueOnce(1);
+
+			const result = await repository.listAllCoursesPaginated({});
+
+			expect(result.data[0].classes_count.available_classes_count).toBe(5);
+			expect(result.data[0].classes_count.closed_classes_count).toBe(10);
+		});
+
+		it('should default count values to zero when raw values are null', async () => {
+			mockQueryBuilder.getRawAndEntities.mockResolvedValueOnce({
+				entities: [mockCourse],
+				raw: [{ available_classes_count: null, closed_classes_count: null }],
+			});
+			mockQueryBuilder.getCount.mockResolvedValueOnce(1);
+
+			const result = await repository.listAllCoursesPaginated({});
+
+			expect(result.data[0].classes_count.available_classes_count).toBe(0);
+			expect(result.data[0].classes_count.closed_classes_count).toBe(0);
 		});
 	});
 });
