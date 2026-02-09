@@ -53,7 +53,7 @@ Antes de começar, você precisa ter instalado:
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/seu-usuario/dot-grp-backend-challenge.git
+git clone https://github.com/Toddynn/dot-grp-backend-challenge.git
 cd dot-grp-backend-challenge
 ```
 
