@@ -30,7 +30,7 @@ export class GetExistingEnrollmentUseCase {
 		}
 
 		if (throwIfFound) {
-			throw new EnrollmentAlreadyExistsException(fields);
+			throw new EnrollmentAlreadyExistsException();
 		}
 
 		return enrollment;

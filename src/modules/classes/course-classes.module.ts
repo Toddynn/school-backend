@@ -9,6 +9,7 @@ import { CreateCourseClassController } from './use-cases/create-course-class/cre
 import { CreateCourseClassUseCase } from './use-cases/create-course-class/create-course-class.use-case';
 import { DeleteCourseClassController } from './use-cases/delete-course-class/delete-course-class.controller';
 import { DeleteCourseClassUseCase } from './use-cases/delete-course-class/delete-course-class.use-case';
+import { GetExistingCourseClassController } from './use-cases/get-existing-course-class/get-existing-class.controller';
 import { GetExistingCourseClassUseCase } from './use-cases/get-existing-course-class/get-existing-class.use-case';
 import { ListAllClassesController } from './use-cases/list-all-classes/list-all-classes.controller';
 import { ListAllClassesUseCase } from './use-cases/list-all-classes/list-all-classes.use-case';
@@ -18,7 +19,7 @@ import { UpdateCourseClassSpotsUseCase } from './use-cases/update-course-class-s
 
 @Module({
 	imports: [TypeOrmModule.forFeature([CourseClass]), CoursesModule],
-	controllers: [CreateCourseClassController, UpdateCourseClassController, DeleteCourseClassController, ListAllClassesController],
+	controllers: [CreateCourseClassController, UpdateCourseClassController, DeleteCourseClassController, ListAllClassesController, GetExistingCourseClassController],
 	providers: [
 		{
 			provide: COURSE_CLASSES_REPOSITORY_INTERFACE_KEY,

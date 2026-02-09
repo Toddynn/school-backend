@@ -401,7 +401,7 @@ describe('CreateEnrollmentUseCase', () => {
 				mockGetExistingCourseClassUseCase.execute.mockResolvedValue(mockCourseClass);
 				mockGetExistingEnrollmentUseCase.execute.mockResolvedValueOnce(null).mockResolvedValueOnce(mockEnrollment);
 
-				await expect(useCase.execute(createEnrollmentDto)).rejects.toThrow('Usuário já está matriculado em uma classe deste curso');
+				await expect(useCase.execute(createEnrollmentDto)).rejects.toThrow('Usuário já está matriculado em uma turma deste curso');
 			});
 
 			it('should not create enrollment when user is already enrolled in course', async () => {
@@ -429,16 +429,14 @@ describe('CreateEnrollmentUseCase', () => {
 		describe('duplicate enrollment in same class', () => {
 			it('should throw EnrollmentAlreadyExistsException when user is already enrolled in same class', async () => {
 				mockGetExistingCourseClassUseCase.execute.mockResolvedValue(mockCourseClass);
-				mockGetExistingEnrollmentUseCase.execute.mockRejectedValueOnce(
-					new EnrollmentAlreadyExistsException(`user_id: ${createEnrollmentDto.user_id}, class_id: ${createEnrollmentDto.class_id}`),
-				);
+				mockGetExistingEnrollmentUseCase.execute.mockRejectedValueOnce(new EnrollmentAlreadyExistsException());
 
 				await expect(useCase.execute(createEnrollmentDto)).rejects.toThrow(EnrollmentAlreadyExistsException);
 			});
 
 			it('should not create enrollment when duplicate exists', async () => {
 				mockGetExistingCourseClassUseCase.execute.mockResolvedValue(mockCourseClass);
-				mockGetExistingEnrollmentUseCase.execute.mockRejectedValueOnce(new EnrollmentAlreadyExistsException('user_id: x, class_id: y'));
+				mockGetExistingEnrollmentUseCase.execute.mockRejectedValueOnce(new EnrollmentAlreadyExistsException());
 
 				await expect(useCase.execute(createEnrollmentDto)).rejects.toThrow();
 

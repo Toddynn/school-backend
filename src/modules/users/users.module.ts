@@ -8,6 +8,7 @@ import { CreateUserController } from './use-cases/create-user/create-user.contro
 import { CreateUserUseCase } from './use-cases/create-user/create-user.use-case';
 import { DeleteUserController } from './use-cases/delete-user/delete-user.controller';
 import { DeleteUserUseCase } from './use-cases/delete-user/delete-user.use-case';
+import { GetExistingUserController } from './use-cases/get-existing-user/get-existing-user.controller';
 import { GetExistingUserUseCase } from './use-cases/get-existing-user/get-existing-user.use-case';
 import { ListAllUsersController } from './use-cases/list-all-users/list-all-users.controller';
 import { ListAllUsersUseCase } from './use-cases/list-all-users/list-all-users.use-case';
@@ -16,7 +17,7 @@ import { UpdateUserUseCase } from './use-cases/update-user/update-user.use-case'
 
 @Module({
 	imports: [TypeOrmModule.forFeature([User])],
-	controllers: [CreateUserController, UpdateUserController, DeleteUserController, ListAllUsersController],
+	controllers: [CreateUserController, UpdateUserController, DeleteUserController, ListAllUsersController, GetExistingUserController],
 	providers: [
 		{
 			provide: USER_REPOSITORY_INTERFACE_KEY,

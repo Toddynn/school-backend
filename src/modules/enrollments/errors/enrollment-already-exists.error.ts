@@ -1,8 +1,8 @@
 import { ConflictException } from '@nestjs/common';
 
 export class EnrollmentAlreadyExistsException extends ConflictException {
-	constructor(fields: string) {
-		super(`Matrícula já existe com os critérios: ${fields}`);
+	constructor() {
+		super(`Este usuário já está matriculado neste curso`);
 		this.name = 'EnrollmentAlreadyExistsException';
 	}
 }

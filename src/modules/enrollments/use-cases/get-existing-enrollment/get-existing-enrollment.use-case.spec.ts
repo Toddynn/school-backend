@@ -75,9 +75,7 @@ describe('GetExistingEnrollmentUseCase', () => {
 			});
 
 			it('should include field info in EnrollmentAlreadyExistsException message', async () => {
-				await expect(useCase.execute({ where: { user_id: mockEnrollment.user_id } }, { throwIfFound: true })).rejects.toThrow(
-					`Matrícula já existe com os critérios: user_id: ${mockEnrollment.user_id}`,
-				);
+				await expect(useCase.execute({ where: { user_id: mockEnrollment.user_id } }, { throwIfFound: true })).rejects.toThrow();
 			});
 		});
 

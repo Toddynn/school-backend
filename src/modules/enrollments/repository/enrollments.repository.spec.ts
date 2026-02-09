@@ -117,24 +117,47 @@ describe('EnrollmentsRepository', () => {
 			});
 		});
 
-		it('should not apply filters when not provided', async () => {
+		it('should filter by search term in user name, course title and class title', async () => {
+			await repository.listAllEnrollmentsPaginated({ search: 'João' });
+
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+				'(user.name ILIKE :search OR course.title ILIKE :search OR course_class.title ILIKE :search)',
+				{ search: '%João%' },
+			);
+		});
+
+		it('should not apply search filter when search is not provided', async () => {
+			await repository.listAllEnrollmentsPaginated({});
+
+			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith(
+				expect.stringContaining('ILIKE :search'),
+				expect.anything(),
+			);
+		});
+
+		it('should not apply ID filters when not provided', async () => {
 			await repository.listAllEnrollmentsPaginated({});
 
 			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalled();
 		});
 
-		it('should apply multiple filters when provided', async () => {
+		it('should apply all filters together', async () => {
 			const userId = '0194e7c5-8b7e-7000-8000-000000000002';
 			const classId = '0194e7c5-8b7e-7000-8000-000000000003';
 			const courseId = '0194e7c5-8b7e-7000-8000-000000000010';
 
 			await repository.listAllEnrollmentsPaginated({
+				search: 'TypeScript',
 				user_id: userId,
 				class_id: classId,
 				course_id: courseId,
 			});
 
-			expect(mockQueryBuilder.andWhere).toHaveBeenCalledTimes(3);
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledTimes(4);
+			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+				'(user.name ILIKE :search OR course.title ILIKE :search OR course_class.title ILIKE :search)',
+				{ search: '%TypeScript%' },
+			);
 			expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith('enrollment.user_id = :user_id', {
 				user_id: userId,
 			});
