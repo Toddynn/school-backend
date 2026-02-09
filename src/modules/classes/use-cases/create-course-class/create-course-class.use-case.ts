@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { GetExistingCourseUseCase } from '@/modules/courses/use-cases/get-existing-course/get-existing-course.use-case';
+import { InvalidClassDateRangeException } from '../../errors/invalid-class-date-range.error';
 import type { CreateCourseClassDto } from '../../models/dto/input/create-course-class.dto';
 import type { CourseClass } from '../../models/entities/course-class.entity';
 import type { CourseClassesRepositoryInterface } from '../../models/interfaces/course-classes-repository.interface';
@@ -16,6 +17,10 @@ export class CreateCourseClassUseCase {
 
 	async execute(createCourseClassDto: CreateCourseClassDto): Promise<CourseClass> {
 		await this.getExistingCourseUseCase.execute({ where: { id: createCourseClassDto.course_id } }, { throwIfNotFound: true });
+
+		if (createCourseClassDto.start_date > createCourseClassDto.end_date) {
+			throw new InvalidClassDateRangeException();
+		}
 
 		const classEntity = this.classesRepository.create(createCourseClassDto);
 

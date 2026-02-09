@@ -1,6 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing';
 import { NotFoundCourseException } from '@/modules/courses/errors/not-found-course.error';
 import { GetExistingCourseUseCase } from '@/modules/courses/use-cases/get-existing-course/get-existing-course.use-case';
+import { InvalidClassDateRangeException } from '../../errors/invalid-class-date-range.error';
 import type { CreateCourseClassDto } from '../../models/dto/input/create-course-class.dto';
 import type { CourseClass } from '../../models/entities/course-class.entity';
 import type { CourseClassesRepositoryInterface } from '../../models/interfaces/course-classes-repository.interface';
@@ -157,6 +158,77 @@ describe('CreateCourseClassUseCase', () => {
 			});
 		});
 
+		describe('invalid date range', () => {
+			beforeEach(() => {
+				mockGetExistingCourseUseCase.execute.mockResolvedValue({} as never);
+			});
+
+			it('should throw InvalidClassDateRangeException when start_date is after end_date', async () => {
+				const dtoWithInvalidDates: CreateCourseClassDto = {
+					...createCourseClassDto,
+					start_date: new Date('2024-12-31'),
+					end_date: new Date('2024-01-01'),
+				};
+
+				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow(InvalidClassDateRangeException);
+			});
+
+			it('should throw InvalidClassDateRangeException with correct message', async () => {
+				const dtoWithInvalidDates: CreateCourseClassDto = {
+					...createCourseClassDto,
+					start_date: new Date('2024-06-30'),
+					end_date: new Date('2024-01-01'),
+				};
+
+				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow(
+					'A data de início deve ser anterior à data de término',
+				);
+			});
+
+			it('should not create class when date range is invalid', async () => {
+				const dtoWithInvalidDates: CreateCourseClassDto = {
+					...createCourseClassDto,
+					start_date: new Date('2024-12-31'),
+					end_date: new Date('2024-01-01'),
+				};
+
+				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow();
+
+				expect(mockCourseClassesRepository.create).not.toHaveBeenCalled();
+				expect(mockCourseClassesRepository.save).not.toHaveBeenCalled();
+			});
+
+			it('should check date range after verifying course exists', async () => {
+				mockGetExistingCourseUseCase.execute.mockRejectedValue(
+					new NotFoundCourseException(`id: ${createCourseClassDto.course_id}`),
+				);
+
+				const dtoWithInvalidDates: CreateCourseClassDto = {
+					...createCourseClassDto,
+					start_date: new Date('2024-12-31'),
+					end_date: new Date('2024-01-01'),
+				};
+
+				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow(NotFoundCourseException);
+			});
+
+			it('should allow creation when start_date equals end_date', async () => {
+				mockCourseClassesRepository.create.mockReturnValue(mockCourseClass);
+				mockCourseClassesRepository.save.mockResolvedValue(mockCourseClass);
+
+				const sameDate = new Date('2024-06-15');
+				const dtoWithSameDate: CreateCourseClassDto = {
+					...createCourseClassDto,
+					start_date: sameDate,
+					end_date: sameDate,
+				};
+
+				const result = await useCase.execute(dtoWithSameDate);
+
+				expect(result).toEqual(mockCourseClass);
+			});
+		});
+
 		describe('edge cases', () => {
 			beforeEach(() => {
 				mockGetExistingCourseUseCase.execute.mockResolvedValue({} as never);
@@ -184,19 +256,6 @@ describe('CreateCourseClassUseCase', () => {
 				await useCase.execute(dtoWithHighSpots);
 
 				expect(mockCourseClassesRepository.create).toHaveBeenCalledWith(dtoWithHighSpots);
-			});
-
-			it('should handle class with same start and end date', async () => {
-				const sameDate = new Date('2024-06-15');
-				const dtoWithSameDate: CreateCourseClassDto = {
-					...createCourseClassDto,
-					start_date: sameDate,
-					end_date: sameDate,
-				};
-
-				await useCase.execute(dtoWithSameDate);
-
-				expect(mockCourseClassesRepository.create).toHaveBeenCalledWith(dtoWithSameDate);
 			});
 		});
 	});
