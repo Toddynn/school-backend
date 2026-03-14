@@ -72,6 +72,7 @@ describe('CoursesRepository', () => {
 			const result = await repository.listAllCoursesPaginated({});
 
 			expect(repository.createQueryBuilder).toHaveBeenCalledWith('course');
+			expect(mockQueryBuilder.getCount).toHaveBeenCalled();
 			expect(mockQueryBuilder.addSelect).toHaveBeenCalledTimes(2);
 			expect(mockQueryBuilder.setParameters).toHaveBeenCalledWith({
 				availableStatus: CourseClassStatus.AVAILABLE,
@@ -80,7 +81,6 @@ describe('CoursesRepository', () => {
 			expect(mockQueryBuilder.skip).toHaveBeenCalledWith(0);
 			expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
 			expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith('course.created_at', 'DESC');
-			expect(mockQueryBuilder.getCount).toHaveBeenCalled();
 			expect(mockQueryBuilder.getRawAndEntities).toHaveBeenCalled();
 			expect(result).toEqual({
 				data: [
@@ -92,6 +92,25 @@ describe('CoursesRepository', () => {
 				total: 2,
 				total_pages: 1,
 			});
+		});
+
+		it('should add count subqueries after getCount to avoid state reset', async () => {
+			const callOrder: string[] = [];
+			mockQueryBuilder.getCount.mockImplementation(async () => {
+				callOrder.push('getCount');
+				return mockCourses.length;
+			});
+			mockQueryBuilder.addSelect.mockImplementation(() => {
+				callOrder.push('addSelect');
+				return mockQueryBuilder;
+			});
+
+			await repository.listAllCoursesPaginated({});
+
+			const getCountIndex = callOrder.indexOf('getCount');
+			const firstAddSelectIndex = callOrder.indexOf('addSelect');
+
+			expect(getCountIndex).toBeLessThan(firstAddSelectIndex);
 		});
 
 		it('should return paginated courses with custom pagination values', async () => {

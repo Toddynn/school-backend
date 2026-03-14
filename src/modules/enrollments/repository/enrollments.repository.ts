@@ -14,6 +14,7 @@ export class EnrollmentsRepository extends Repository<Enrollment> implements Enr
 	async listAllEnrollmentsPaginated({
 		page = 1,
 		limit = 10,
+		search,
 		user_id,
 		class_id,
 		course_id,
@@ -24,6 +25,13 @@ export class EnrollmentsRepository extends Repository<Enrollment> implements Enr
 			.leftJoinAndSelect('enrollment.user', 'user')
 			.leftJoinAndSelect('enrollment.course_class', 'course_class')
 			.leftJoinAndSelect('course_class.course', 'course');
+
+		if (search) {
+			queryBuilder.andWhere(
+				'(user.name ILIKE :search OR course.title ILIKE :search OR course_class.title ILIKE :search)',
+				{ search: `%${search}%` },
+			);
+		}
 
 		if (user_id) {
 			queryBuilder.andWhere('enrollment.user_id = :user_id', { user_id });

@@ -22,13 +22,7 @@ export class CoursesRepository extends Repository<Course> implements CoursesRepo
 	}: ListAllCoursesPaginationDto): Promise<PaginatedResponseDto<CourseWithClassesStatusCounts>> {
 		const skip = (page - 1) * limit;
 
-		const queryBuilder = this.createQueryBuilder('course')
-			.addSelect('(SELECT COUNT(*) FROM classes c WHERE c.course_id = course.id AND c.status = :availableStatus)', 'available_classes_count')
-			.addSelect('(SELECT COUNT(*) FROM classes c WHERE c.course_id = course.id AND c.status = :closedStatus)', 'closed_classes_count')
-			.setParameters({
-				availableStatus: CourseClassStatus.AVAILABLE,
-				closedStatus: CourseClassStatus.CLOSED,
-			});
+		const queryBuilder = this.createQueryBuilder('course');
 
 		if (search) {
 			queryBuilder.andWhere('(course.title ILIKE :search OR course.description ILIKE :search)', {
@@ -47,6 +41,20 @@ export class CoursesRepository extends Repository<Course> implements CoursesRepo
 		}
 
 		const total = await queryBuilder.getCount();
+
+		queryBuilder
+			.addSelect(
+				'(SELECT COUNT(*) FROM classes c WHERE c.course_id = course.id AND c.status = :availableStatus)',
+				'available_classes_count',
+			)
+			.addSelect(
+				'(SELECT COUNT(*) FROM classes c WHERE c.course_id = course.id AND c.status = :closedStatus)',
+				'closed_classes_count',
+			)
+			.setParameters({
+				availableStatus: CourseClassStatus.AVAILABLE,
+				closedStatus: CourseClassStatus.CLOSED,
+			});
 
 		queryBuilder.orderBy('course.created_at', 'DESC');
 		queryBuilder.skip(skip);

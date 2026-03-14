@@ -42,6 +42,7 @@ export class CourseClass extends TimestampedEntity {
 	@ManyToOne(
 		() => Course,
 		(course) => course.classes,
+		{ onDelete: 'CASCADE' },
 	)
 	@JoinColumn({ name: 'course_id' })
 	course: Course;

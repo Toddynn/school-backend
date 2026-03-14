@@ -53,7 +53,7 @@ Antes de começar, você precisa ter instalado:
 1. **Clone o repositório**
 
 ```bash
-git clone https://github.com/seu-usuario/dot-grp-backend-challenge.git
+git clone https://github.com/Toddynn/dot-grp-backend-challenge.git
 cd dot-grp-backend-challenge
 ```
 
@@ -119,7 +119,7 @@ docker compose up --build -d pgsql pgadmin
 pnpm run start:dev
 ```
 
-> **Importante:** Ao rodar a aplicação localmente, configure `DB_HOST=localhost` no `.env`. Ao rodar com Docker, configure `DB_HOST=pgsql`.
+> **Importante:** Ao rodar a aplicação localmente, configure `DB_HOST=localhost (ou o seu ip)` no `.env`. Ao rodar com Docker, configure `DB_HOST=pgsql (nome do container)`.
 
 > **Observação** Ao rodar a aplicação com Docker, o NODE_ENV está marcado como development apenas para disponibilizar a documentação
 

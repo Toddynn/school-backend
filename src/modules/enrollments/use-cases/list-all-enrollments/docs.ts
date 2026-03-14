@@ -9,7 +9,9 @@ export function ListAllEnrollmentsDocs() {
 		ApiExtraModels(PaginatedResponseDto<EnrollmentDto>),
 		ApiOperation({
 			summary: 'List all enrollments',
-			description: 'Returns a paginated list with all enrollments including user, class and course relations.',
+			description:
+				'Returns a paginated list with all enrollments including user, class and course relations. ' +
+				'The search parameter filters by user name, course title or class title.',
 		}),
 		ApiResponse({
 			status: HttpStatus.OK,

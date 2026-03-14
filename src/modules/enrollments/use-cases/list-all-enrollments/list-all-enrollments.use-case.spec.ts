@@ -164,6 +164,19 @@ describe('ListAllEnrollmentsUseCase', () => {
 			});
 		});
 
+		describe('filtering by search', () => {
+			it('should pass search filter to repository', async () => {
+				mockEnrollmentsRepository.listAllEnrollmentsPaginated.mockResolvedValue(mockPaginatedResponse);
+
+				const paginationDto: ListAllEnrollmentsPaginationDto = { search: 'João' };
+				await useCase.execute(paginationDto);
+
+				expect(mockEnrollmentsRepository.listAllEnrollmentsPaginated).toHaveBeenCalledWith({
+					search: 'João',
+				});
+			});
+		});
+
 		describe('combined filters', () => {
 			it('should handle multiple filters together', async () => {
 				const paginationDto: ListAllEnrollmentsPaginationDto = {
@@ -187,8 +200,9 @@ describe('ListAllEnrollmentsUseCase', () => {
 				expect(result).toEqual(filteredResponse);
 			});
 
-			it('should handle all filters with pagination', async () => {
+			it('should handle all filters with search and pagination', async () => {
 				const paginationDto: ListAllEnrollmentsPaginationDto = {
+					search: 'TypeScript',
 					user_id: '0194e7c5-8b7e-7000-8000-000000000002',
 					class_id: '0194e7c5-8b7e-7000-8000-000000000003',
 					course_id: '0194e7c5-8b7e-7000-8000-000000000010',
