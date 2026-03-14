@@ -1,6 +1,6 @@
-# Dot Group - Backend Challenge
+# School project - Backend
 
-API REST desenvolvida como desafio técnico para a empresa **Dot Group**. O projeto consiste em uma API de gerenciamento de cursos, turmas, matrículas e usuários.
+API REST desenvolvida como de gerenciamento de cursos, turmas, matrículas e usuários.
 
 ## Índice
 
@@ -246,7 +246,3 @@ src/
 ### Gestão de Vagas
 - Ao criar uma matrícula, os spots da turma são **decrementados**
 - Ao deletar uma matrícula, os spots da turma são **incrementados**
-
----
-
-Desenvolvido como parte do desafio técnico para **Dot Group**.
