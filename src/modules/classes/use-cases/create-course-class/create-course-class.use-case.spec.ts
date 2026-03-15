@@ -180,9 +180,7 @@ describe('CreateCourseClassUseCase', () => {
 					end_date: new Date('2024-01-01'),
 				};
 
-				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow(
-					'A data de início deve ser anterior à data de término',
-				);
+				await expect(useCase.execute(dtoWithInvalidDates)).rejects.toThrow('A data de início deve ser anterior à data de término');
 			});
 
 			it('should not create class when date range is invalid', async () => {
@@ -199,9 +197,7 @@ describe('CreateCourseClassUseCase', () => {
 			});
 
 			it('should check date range after verifying course exists', async () => {
-				mockGetExistingCourseUseCase.execute.mockRejectedValue(
-					new NotFoundCourseException(`id: ${createCourseClassDto.course_id}`),
-				);
+				mockGetExistingCourseUseCase.execute.mockRejectedValue(new NotFoundCourseException(`id: ${createCourseClassDto.course_id}`));
 
 				const dtoWithInvalidDates: CreateCourseClassDto = {
 					...createCourseClassDto,

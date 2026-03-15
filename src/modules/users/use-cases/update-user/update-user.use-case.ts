@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { UpdateResult } from 'typeorm';
+import { hashPassword } from '@/shared/helpers/hash-password.helper';
 import type { UpdateUserDto } from '../../models/dto/input/update-user.dto';
 import type { UsersRepositoryInterface } from '../../models/interfaces/users-repository.interface';
 import { USER_REPOSITORY_INTERFACE_KEY } from '../../shared/constants/repository-interface-key';
@@ -17,6 +18,8 @@ export class UpdateUserUseCase {
 	async execute(userId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
 		await this.getExistingUserUseCase.execute({ where: { id: userId } }, { throwIfNotFound: true });
 
-		return await this.usersRepository.update(userId, updateUserDto);
+		const dataToUpdate = updateUserDto.password ? { ...updateUserDto, password: await hashPassword(updateUserDto.password) } : updateUserDto;
+
+		return await this.usersRepository.update(userId, dataToUpdate);
 	}
 }

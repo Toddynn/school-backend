@@ -9,8 +9,7 @@ export function ListAllCoursesDocs() {
 		ApiExtraModels(PaginatedResponseDto<CourseWithClassesStatusCountsDto>),
 		ApiOperation({
 			summary: 'List all courses',
-			description:
-				'Returns a paginated list with all registered courses, including the count of available and closed classes for each course.',
+			description: 'Returns a paginated list with all registered courses, including the count of available and closed classes for each course.',
 		}),
 		ApiResponse({
 			status: HttpStatus.OK,

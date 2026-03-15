@@ -14,9 +14,6 @@ export class GetExistingCourseClassController {
 	@Get(':id')
 	@GetExistingCourseClassDocs()
 	async execute(@Param('id', ParseUUIDPipe) classId: string) {
-		return await this.getExistingCourseClassUseCase.execute(
-			{ where: { id: classId }, relations: ['course'] },
-			{ throwIfNotFound: true },
-		);
+		return await this.getExistingCourseClassUseCase.execute({ where: { id: classId }, relations: ['course'] }, { throwIfNotFound: true });
 	}
 }

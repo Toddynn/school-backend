@@ -27,10 +27,7 @@ export class EnrollmentsRepository extends Repository<Enrollment> implements Enr
 			.leftJoinAndSelect('course_class.course', 'course');
 
 		if (search) {
-			queryBuilder.andWhere(
-				'(user.name ILIKE :search OR course.title ILIKE :search OR course_class.title ILIKE :search)',
-				{ search: `%${search}%` },
-			);
+			queryBuilder.andWhere('(user.name ILIKE :search OR course.title ILIKE :search OR course_class.title ILIKE :search)', { search: `%${search}%` });
 		}
 
 		if (user_id) {

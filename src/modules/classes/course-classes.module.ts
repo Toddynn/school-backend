@@ -19,7 +19,13 @@ import { UpdateCourseClassSpotsUseCase } from './use-cases/update-course-class-s
 
 @Module({
 	imports: [TypeOrmModule.forFeature([CourseClass]), CoursesModule],
-	controllers: [CreateCourseClassController, UpdateCourseClassController, DeleteCourseClassController, ListAllClassesController, GetExistingCourseClassController],
+	controllers: [
+		CreateCourseClassController,
+		UpdateCourseClassController,
+		DeleteCourseClassController,
+		ListAllClassesController,
+		GetExistingCourseClassController,
+	],
 	providers: [
 		{
 			provide: COURSE_CLASSES_REPOSITORY_INTERFACE_KEY,

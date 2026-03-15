@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { hashPassword } from '@/shared/helpers/hash-password.helper';
 import type { CreateUserDto } from '../../models/dto/input/create-user.dto';
 import type { User } from '../../models/entities/user.entity';
 import type { UsersRepositoryInterface } from '../../models/interfaces/users-repository.interface';
@@ -17,8 +18,10 @@ export class CreateUserUseCase {
 	async execute(createUserDto: CreateUserDto): Promise<User> {
 		await this.getExistingUserUseCase.execute({ where: { email: createUserDto.email } }, { throwIfFound: true });
 
-		const user = this.usersRepository.create(createUserDto);
+		const hashedPassword = await hashPassword(createUserDto.password);
+		const user = this.usersRepository.create({ ...createUserDto, password: hashedPassword });
+		const savedUser = await this.usersRepository.save(user);
 
-		return await this.usersRepository.save(user);
+		return (await this.usersRepository.findOneBy({ id: savedUser.id })) as User;
 	}
 }

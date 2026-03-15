@@ -79,7 +79,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["src/**/*.controller.ts"],
+			"includes": ["src/**/*.controller.ts", "src/**/*.module.ts", "src/**/*.strategy.ts", "src/**/*.guard.ts", "src/**/*.dto.ts"],
 			"linter": {
 				"rules": {
 					"recommended": true,

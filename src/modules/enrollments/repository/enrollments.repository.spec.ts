@@ -129,10 +129,7 @@ describe('EnrollmentsRepository', () => {
 		it('should not apply search filter when search is not provided', async () => {
 			await repository.listAllEnrollmentsPaginated({});
 
-			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith(
-				expect.stringContaining('ILIKE :search'),
-				expect.anything(),
-			);
+			expect(mockQueryBuilder.andWhere).not.toHaveBeenCalledWith(expect.stringContaining('ILIKE :search'), expect.anything());
 		});
 
 		it('should not apply ID filters when not provided', async () => {
