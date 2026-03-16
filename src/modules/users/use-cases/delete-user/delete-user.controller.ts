@@ -1,6 +1,8 @@
 import { Controller, Delete, Inject, Param } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
+import { Roles } from '@/modules/auth/shared/decorators/roles.decorator';
+import { Role } from '@/shared/constants/roles';
 import { DeleteUserUseCase } from './delete-user.use-case';
 import { DeleteUserDocs } from './docs';
 
@@ -13,6 +15,8 @@ export class DeleteUserController {
 	) {}
 
 	@Delete(':id')
+	@Roles(Role.ACCESS)
+	@ApiBearerAuth()
 	@DeleteUserDocs()
 	async execute(@Param('id') userId: string): Promise<DeleteResult> {
 		return await this.deleteUserUseCase.execute(userId);

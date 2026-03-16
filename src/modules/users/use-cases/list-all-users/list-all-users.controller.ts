@@ -1,5 +1,7 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Roles } from '@/modules/auth/shared/decorators/roles.decorator';
+import { Role } from '@/shared/constants/roles';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { ListAllUsersDocs } from './docs';
 import { ListAllUsersUseCase } from './list-all-users.use-case';
@@ -13,6 +15,8 @@ export class ListAllUsersController {
 	) {}
 
 	@Get('/paginated')
+	@Roles(Role.ACCESS)
+	@ApiBearerAuth()
 	@ListAllUsersDocs()
 	async execute(@Query() paginationDto: PaginationDto) {
 		return await this.listAllUsersUseCase.execute(paginationDto);

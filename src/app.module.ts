@@ -12,6 +12,7 @@ import { CoursesModule } from './modules/courses/courses.module';
 import { EnrollmentsModule } from './modules/enrollments/enrollments.module';
 import { UsersModule } from './modules/users/users.module';
 import { ReflectionGuardValidationPipe } from './shared/pipes/safe-type-declaration-pipe';
+import { DefaultUserSeeder } from './shared/seeders/default-user.seeder';
 
 @Module({
 	imports: [
@@ -43,6 +44,7 @@ import { ReflectionGuardValidationPipe } from './shared/pipes/safe-type-declarat
 			provide: APP_GUARD,
 			useClass: RolesGuard,
 		},
+		DefaultUserSeeder,
 	],
 })
 export class AppModule {}

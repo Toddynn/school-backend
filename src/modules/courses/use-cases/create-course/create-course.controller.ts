@@ -1,5 +1,7 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Roles } from '@/modules/auth/shared/decorators/roles.decorator';
+import { Role } from '@/shared/constants/roles';
 import { CreateCourseDto } from '../../models/dto/input/create-course.dto';
 import { Course } from '../../models/entities/course.entity';
 import { CreateCourseUseCase } from './create-course.use-case';
@@ -14,6 +16,8 @@ export class CreateCourseController {
 	) {}
 
 	@Post()
+	@Roles(Role.ACCESS)
+	@ApiBearerAuth()
 	@CreateCourseDocs()
 	async execute(@Body() createCourseDto: CreateCourseDto): Promise<Course> {
 		return await this.createCourseUseCase.execute(createCourseDto);

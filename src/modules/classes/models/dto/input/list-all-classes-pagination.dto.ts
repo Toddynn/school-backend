@@ -10,6 +10,11 @@ export class ListAllClassesPaginationDto extends PaginationDto {
 	@IsUUID()
 	course_id?: string;
 
+	@ApiPropertyOptional({ description: 'Include enrollment status for this user ID' })
+	@IsOptional()
+	@IsUUID()
+	current_user_id?: string;
+
 	@ApiPropertyOptional({ description: 'Filter by class status', enum: CourseClassStatus, isArray: true })
 	@IsOptional()
 	@Transform(({ value }) => {
